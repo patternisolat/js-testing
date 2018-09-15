@@ -24,9 +24,13 @@
 
 
 
-function forEach(array, callback) {
+function forEach(array, callback, optionalThisObject) {
+  var forEachCallback = callback;
+  if (optionalThisObject) {
+    forEachCallback = callback.bind(optionalThisObject);
+  }
   for (var i = 0; i < array.length; i++) {
-    callback(array[i], i, array);
+    forEachCallback(array[i], i, array);
   }
 }
 
@@ -34,11 +38,11 @@ function forEach(array, callback) {
 tests({
 
   'It should run the callback function array.length times': function() {
-    var counter = 0;
+    var numberOfTimesCallbackHasRun = 0;
     forEach([1, 2, 3], function() {
-       counter++;
+       numberOfTimesCallbackHasRun++;
     });
-    eq(counter, 3);
+    eq(numberOfTimesCallbackHasRun, 3);
   },
 
   'It should pass in the ith element as the first argument to the callback':function() {
@@ -58,6 +62,11 @@ tests({
     forEach(testArray, function(number, index, originalArray) {
        eq(originalArray, testArray);
     });
+  },
+  'It should accept an optional this object': function() {
+    forEach([1], function() {
+      eq(this.description, "I should be accessible inside of the callback");
+    }, {description: "I should be accessible inside of the callback"});
   }
 });
   </script>
